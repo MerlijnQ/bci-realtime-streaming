@@ -24,8 +24,8 @@ def main():
 
 
     start = time.time()
-    end  = start + 60
-    
+    end  = start + 120
+
     while time.time() < end:
         sample = np.random.randn(N_CHANNELS).astype(np.float32)
         outlet.push_sample(sample)
