@@ -22,7 +22,11 @@ def main():
     outlet = StreamOutlet(info)
     print("Streaming simulated EEG...")
 
-    while True:
+
+    start = time.time()
+    end  = start + 60
+    
+    while time.time() < end:
         sample = np.random.randn(N_CHANNELS).astype(np.float32)
         outlet.push_sample(sample)
         time.sleep(1.0 / FS)
