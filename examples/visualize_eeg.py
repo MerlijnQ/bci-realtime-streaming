@@ -27,14 +27,16 @@ def get_stats(data):
 
     timestamps = data[:, 0]
     latency = data[:, 1]
+
+    print(f"the timestamps are: {timestamps}")
   
     duration = np.max(timestamps) - np.min(timestamps)
     print(f"Duration: {duration:.4f} s")
     print(f"Number of samples: {num_samples}")
-    throughput = (num_samples-1) / duration #offset by one as  the first sample does not have a previous sample to calculate the inter-sample interval
+    throughput = (num_samples-1) / duration # offset by one as the first sample does not have a previous sample to calculate the inter-sample interval
 
     #Works for now due to large buffer size, but may need to be adjusted for smaller buffer sizes as you will accidentilly 
-    #include the difference between firsy and last as it is ciruclar.
+    #include the difference between first and last as it is ciruclar.
     #calculate jitter (in milliseconds)
     inter_sample_intervals = np.diff(timestamps)
     jitter = np.std(inter_sample_intervals)
@@ -59,9 +61,13 @@ def plot(inlet, buffer):
             raise ValueError("Received sample is 0.0, which may indicate an issue with the data stream.")   
         
         buffer.append(sample)
+        # note: append_time_latency appends to a SEPARATE buffer. This buffer only stores
+        # the timestamps and the latency, NOT the samples. 
         buffer.append_time_latency(timestamp, latency)
-        data = buffer.get()
 
+        # note: buffer.get is only retrieving the samples, not the timestamps or latency.
+        data = buffer.get()
+        
         plot_data = data + np.arange(N_CHANNELS) * -10.0  # Offset each channel for better visibility
 
         ax.clear()
@@ -70,6 +76,7 @@ def plot(inlet, buffer):
         plt.pause(0.01)
 
     plt.close()
+    # only here we retrive the timestamps and latencies that are then used to calculate the stats
     timestamps_and_latencies = buffer.get_time_latency()
     return data, timestamps_and_latencies
 
