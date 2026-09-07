@@ -16,9 +16,9 @@ N_CHANNELS = 8
 
 #maxsamples = FS * BUFFER_SEC
 #number of samples in 60 seconds = 250 x 60 = 15000 samples
-counter = 0
 
 def get_stats(data):
+
 
     num_samples = data.shape[0]
     #[max_samples, 2] = data.shape
@@ -28,7 +28,7 @@ def get_stats(data):
     timestamps = data[:, 0]
     latency = data[:, 1]
 
-    print(f"the timestamps are: {timestamps}")
+    # print(f"the timestamps are: {timestamps}")
   
     duration = np.max(timestamps) - np.min(timestamps)
     print(f"Duration: {duration:.4f} s")
@@ -50,12 +50,17 @@ def plot(inlet, buffer):
     plt.ion()
     _, ax = plt.subplots()
 
-    start = time.time()
+    start = lsl.local_clock()
+    print(f"start time is: {start} s")
     end = start + 10
 
-    while time.time() < end:
+    plot_every_n = 50 # plots every 50 samples
+    sample_counter = 0
+
+    while lsl.local_clock() < end:
         sample, timestamp = inlet.pull_sample()
         latency = lsl.local_clock() - timestamp
+
 
         if sample == 0.0:
             raise ValueError("Received sample is 0.0, which may indicate an issue with the data stream.")   
@@ -65,17 +70,26 @@ def plot(inlet, buffer):
         # the timestamps and the latency, NOT the samples. 
         buffer.append_time_latency(timestamp, latency)
 
+        sample_counter += 1
+        
+        if sample_counter % plot_every_n == 0:
+            data = buffer.get()
+            plot_data = data + np.arange(N_CHANNELS) * -10.0  # Offset each channel for better visibility
+        
+            ax.clear()
+            ax.plot(plot_data)
+            ax.set_title("Live EEG (Simulated)")    
+            plt.pause(0.001)
+
         # note: buffer.get is only retrieving the samples, not the timestamps or latency.
         data = buffer.get()
-        
-        plot_data = data + np.arange(N_CHANNELS) * -10.0  # Offset each channel for better visibility
-
-        ax.clear()
-        ax.plot(plot_data)
-        ax.set_title("Live EEG (Simulated)")
         plt.pause(0.01)
 
     plt.close()
+    print(f"end time is: {lsl.local_clock()} s")
+    print(f"the final size of the data in the buffer is: {data.shape[0]}")
+    print(f"the actual duration of the code is:{lsl.local_clock() - start} s")
+    # print(f"there were {counter} samples that were 0.0")
     # only here we retrive the timestamps and latencies that are then used to calculate the stats
     timestamps_and_latencies = buffer.get_time_latency()
     return data, timestamps_and_latencies
