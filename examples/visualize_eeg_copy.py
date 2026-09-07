@@ -9,6 +9,8 @@ from src.inlet import create_inlet
 from src.buffer import CircularBuffer
 import pylsl as lsl
 import numpy as np
+from live_plotter import FastLivePlotter
+
 
 FS = 250
 BUFFER_SEC = 60
@@ -18,8 +20,6 @@ N_CHANNELS = 8
 #number of samples in 60 seconds = 250 x 60 = 15000 samples
 
 def get_stats(data):
-
-
     num_samples = data.shape[0]
     #[max_samples, 2] = data.shape
 
@@ -47,51 +47,56 @@ def get_stats(data):
     return throughput, jitter, average_latency
 
 def plot(inlet, buffer):
-    plt.ion()
-    _, ax = plt.subplots()
-
     start = lsl.local_clock()
     print(f"start time is: {start} s")
     end = start + 10
 
-    plot_every_n = 50 # plots every 50 samples
+    PLOT_EVERY_N = 50 # plots every 50 samples
     sample_counter = 0
+
+    live_plotter = FastLivePlotter(
+                n_plots=N_CHANNELS,
+                n_rows=N_CHANNELS,
+                n_cols=1,
+                xlabels=["x"] * N_CHANNELS,
+                ylims=[(-5, 5)] * N_CHANNELS,
+            )
 
     while lsl.local_clock() < end:
         sample, timestamp = inlet.pull_sample()
         latency = lsl.local_clock() - timestamp
-
-
+    
         if sample == 0.0:
             raise ValueError("Received sample is 0.0, which may indicate an issue with the data stream.")   
         
         buffer.append(sample)
+
         # note: append_time_latency appends to a SEPARATE buffer. This buffer only stores
         # the timestamps and the latency, NOT the samples. 
         buffer.append_time_latency(timestamp, latency)
 
         sample_counter += 1
-        
-        # if sample_counter % plot_every_n == 0:
-        #     data = buffer.get()
-        #     plot_data = data + np.arange(N_CHANNELS) * -10.0  # Offset each channel for better visibility
-        
-        #     ax.clear()
-        #     ax.plot(plot_data)
-        #     ax.set_title("Live EEG (Simulated)")    
-        #     plt.pause(0.001)
 
         # note: buffer.get is only retrieving the samples, not the timestamps or latency.
         data = buffer.get()
-        # plt.pause(0.01)
+        
+        # plot_data = data + np.arange(N_CHANNELS) * -10.0  # Offset each channel for better visibility
 
-    # plt.close()
+        if sample_counter % PLOT_EVERY_N == 0:
+            data = buffer.get()
+
+            plot_data = [data[:, i] for i in range(data.shape[1])]
+            live_plotter.plot(y_data_list=plot_data)
+
+
+    # print("the number of rows is", data.shape[0])
+    # print("the first channel is", data[:, 0])
 
     print(f"end time is: {lsl.local_clock()} s")
     print(f"the final size of the data in the buffer is: {data.shape[0]}")
     print(f"the actual duration of the code is:{lsl.local_clock() - start} s")
     # print(f"there were {counter} samples that were 0.0")
-    # only here we retrive the timestamps and latencies that are then used to calculate the stats
+    # only here we retrieve the timestamps and latencies that are then used to calculate the stats
     timestamps_and_latencies = buffer.get_time_latency()
     return data, timestamps_and_latencies
 
