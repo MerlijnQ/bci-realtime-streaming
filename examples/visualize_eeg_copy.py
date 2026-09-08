@@ -49,16 +49,22 @@ def get_stats(data):
 def plot(inlet, buffer):
     start = lsl.local_clock()
     print(f"start time is: {start} s")
-    end = start + 10
+    end = start + 60
 
     PLOT_EVERY_N = 50 # plots every 50 samples
     sample_counter = 0
+
+    plt.rcParams["figure.figsize"] = (10, 16)
+
+    xlabels = [None] * (N_CHANNELS - 1) + ["Time (samples)"]
+    ylabels = [f"Ch {i+1}" for i in range(N_CHANNELS)]
 
     live_plotter = FastLivePlotter(
                 n_plots=N_CHANNELS,
                 n_rows=N_CHANNELS,
                 n_cols=1,
-                xlabels=["x"] * N_CHANNELS,
+                xlabels=xlabels,
+                ylabels=ylabels,
                 ylims=[(-5, 5)] * N_CHANNELS,
             )
 

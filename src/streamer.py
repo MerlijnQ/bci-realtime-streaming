@@ -24,7 +24,7 @@ def main():
 
 
     start = time.time()
-    end  = start + 100
+    end  = start + 200
 
     while time.time() < end:
         sample = np.random.randn(N_CHANNELS).astype(np.float32)
