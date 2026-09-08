@@ -52,10 +52,10 @@ def plot(inlet, buffer):
 
     start = lsl.local_clock()
     print(f"start time is: {start} s")
-    end = start + 10
+    end = start + 20
 
-    plot_every_n = 50 # plots every 50 samples
-    sample_counter = 0
+    # plot_every_n = 50 # plots every 50 samples
+    # sample_counter = 0
 
     while lsl.local_clock() < end:
         sample, timestamp = inlet.pull_sample()
@@ -69,17 +69,24 @@ def plot(inlet, buffer):
         # note: append_time_latency appends to a SEPARATE buffer. This buffer only stores
         # the timestamps and the latency, NOT the samples. 
         buffer.append_time_latency(timestamp, latency)
+        
+        data = buffer.get()
+        plot_data = data + np.arange(N_CHANNELS) * -10.0  # Offset each channel for better visibility            
 
-        sample_counter += 1
-        
-        if sample_counter % plot_every_n == 0:
-            data = buffer.get()
-            plot_data = data + np.arange(N_CHANNELS) * -10.0  # Offset each channel for better visibility
-        
-            ax.clear()
-            ax.plot(plot_data)
-            ax.set_title("Live EEG (Simulated)")    
-            plt.pause(0.001)
+        window_size = 50 # samples
+
+        n = data.shape[0]
+        window_start = (n // window_size) * window_size
+        window_end = n
+
+        x = np.arange(window_start, window_end)
+        y = plot_data[window_start:window_end, :]
+
+        ax.clear()
+        ax.plot(x, y)
+        ax.set_xlim(window_start, window_start + window_size)
+        ax.set_title("Live EEG (Simulated)")    
+        plt.pause(0.001)
 
         # note: buffer.get is only retrieving the samples, not the timestamps or latency.
         data = buffer.get()
