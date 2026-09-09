@@ -1,7 +1,3 @@
 # bci-realtime-streaming
-This repository introduces real-time EEG data streaming using
-Lab Streaming Layer (LSL). Students will create a simulated EEG
-stream, receive it in real time, buffer samples, visualize data,
-and measure latency.
-
-This repo is hardware-agnostic and works with simulated EEG.
+First, run streamer.py in a terminal. You should use python3 -m src.streamer
+Then, run the other files in another terminal. For instance, python3 -m examples.visualize_eeg
