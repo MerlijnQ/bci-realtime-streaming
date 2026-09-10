@@ -9,36 +9,25 @@ class CircularBuffer:
         self.max_samples = max_samples
         self.n_channels = n_channels
         self.buffer = np.zeros((max_samples, n_channels))
-        self.timestampedbuffer = np.zeros((max_samples, 2)) #timestamps and latency
+        self.timestamps = np.zeros(max_samples)
         self.index = 0
-        self.index_time = 0
         self.is_full = False
 
-    def append(self, sample):
+    def append(self, sample, timestamp):
         self.buffer[self.index] = sample
+        self.timestamps[self.index] = timestamp
         self.index = (self.index + 1) % self.max_samples
         if self.index == 0:
             self.is_full = True
 
-    def append_time_latency(self, timestamp, latency):
-        self.timestampedbuffer[self.index_time] = np.array([timestamp, latency])
-        self.index_time = (self.index_time + 1) % self.max_samples
-        if self.index_time == 0:
-            self.is_full = True
-
     def get(self):
         if not self.is_full:
-            return self.buffer[:self.index]
-        return np.vstack((
-            self.buffer[self.index:],
-            self.buffer[:self.index]
-        ))
-
-    def get_time_latency(self):
-        if not self.is_full:
-            return self.timestampedbuffer[:self.index_time]
-        return np.vstack((
-            self.timestampedbuffer[self.index_time:],
-            self.timestampedbuffer[:self.index_time]
-        ))
-
+            return self.buffer[:self.index], self.timestamps[:self.index]
+        else:
+            return np.vstack((
+                self.buffer[self.index:],
+                self.buffer[:self.index]
+            )), np.hstack((
+                self.timestamps[self.index:],
+                self.timestamps[:self.index]
+            ))    

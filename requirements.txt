@@ -2,3 +2,5 @@
 numpy
 pylsl
 matplotlib
+pandas
+live_plotter
