@@ -52,7 +52,7 @@ def get_stats(data):
 def record(inlet, buffer, live_plotter):
     start = lsl.local_clock()
     print(f"start time is: {start} s")
-    end = start + 10
+    end = start + 60
     
     sample_counter = 0
 

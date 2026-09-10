@@ -11,7 +11,7 @@ import pylsl as lsl
 import numpy as np
 
 FS = 250
-BUFFER_SEC = 60
+BUFFER_SEC = 2
 N_CHANNELS = 8
 
 #maxsamples = FS * BUFFER_SEC
@@ -52,7 +52,7 @@ def plot(inlet, buffer):
 
     start = lsl.local_clock()
     print(f"start time is: {start} s")
-    end = start + 10
+    end = start + 60
 
     plot_every_n = 50 # plots every 50 samples
     sample_counter = 0

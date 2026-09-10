@@ -9,7 +9,6 @@ class CircularBuffer:
         self.max_samples = max_samples
         self.n_channels = n_channels
         self.buffer = np.zeros((max_samples, n_channels))
-        print("the shape of the buffer is:", self.buffer.shape)
         self.timestampedbuffer = np.zeros((max_samples, 2)) #timestamps and latency
         self.index = 0
         self.index_time = 0

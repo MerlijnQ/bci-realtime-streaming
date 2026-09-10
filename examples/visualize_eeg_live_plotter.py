@@ -16,7 +16,6 @@ N_CHANNELS = 8
 DURATION = 60
 
 #maxsamples = FS * BUFFER_SEC
-#number of samples in 60 seconds = 250 x 60 = 15000 samples
 
 def get_stats(data):
 
@@ -67,8 +66,6 @@ def plot(inlet, buffer):
             raise ValueError("Received sample is 0.0, which may indicate an issue with the data stream.")   
         
         buffer.append(sample)
-        # note: append_time_latency appends to a SEPARATE buffer. This buffer only stores
-        # the timestamps and the latency, NOT the samples. 
         buffer.append_time_latency(timestamp, latency)
         
         data = buffer.get()
@@ -77,6 +74,7 @@ def plot(inlet, buffer):
         window_size = 250 # samples
 
         n = data.shape[0]
+        # window for plotting data
         window_start = (n // window_size) * window_size
         window_end = n
 
@@ -96,12 +94,12 @@ def plot(inlet, buffer):
     plt.close()
 
     print(f"end time is: {lsl.local_clock()} s")
-    print(f"the recording should contain {FS * DURATION} samples")
-    print(f"we successfully recorded {data.shape[0]} samples")
-    print(f"we are missing {FS * DURATION - data.shape[0]} samples")
-    print(f"the duration of the code based on computer time:{lsl.local_clock() - start} s")
-    # print(f"there were {counter} samples that were 0.0")
-    # only here we retrive the timestamps and latencies that are then used to calculate the stats
+
+    # print(f"the recording should contain {FS * DURATION} samples")
+    # print(f"we successfully recorded {data.shape[0]} samples")
+    # print(f"we are missing {FS * DURATION - data.shape[0]} samples")
+    print(f"duration based on computer time:{lsl.local_clock() - start} s")
+
     timestamps_and_latencies = buffer.get_time_latency()
     return data, timestamps_and_latencies
 
