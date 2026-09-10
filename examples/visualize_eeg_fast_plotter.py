@@ -92,7 +92,7 @@ class Recorder(Logger):
 
         print(f"end time is: {lsl.local_clock()} s")
         # print(f"the final size of the data in the buffer is: {data.shape[0]}")
-        print(f"the actual duration of the code is:{lsl.local_clock() - self.start} s")
+        # print(f"the actual duration of the code is:{lsl.local_clock() - self.start} s")
         # print(f"there were {counter} samples that were 0.0")
         # only here we retrieve the timestamps and latencies that are then used to calculate the 
         
