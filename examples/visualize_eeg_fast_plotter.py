@@ -53,7 +53,7 @@ class Logger():
         jitter = df["Timestamp"].diff().std()
         average_latency = df["Latency"].mean()
         print(f"Throughput: {throughput:.2f} samples/sec")
-        print(f"Jitter: {jitter:.6f} milliseconds")
+        print(f"Jitter: {jitter * 1000 :.6f} milliseconds")
         print(f"Average Latency: {average_latency:.6f} milliseconds")
         print(f"Total number of samples: {len(df)}")
 
